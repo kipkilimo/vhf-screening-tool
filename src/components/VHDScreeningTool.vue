@@ -1,247 +1,189 @@
 <template>
-  <v-container class="pa-2" style="max-width: 900px">
-    <v-card rounded="xl" variant="outlined">
+  <v-container class="pa-2"
+    style="max-width: 900px; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <v-card rounded="xl" variant="outlined" class="d-flex flex-column" style="height: 100%; max-height: 100%;">
       <!-- HEADER -->
-      <v-card-title class="bg-grey-darken-4 text-white">
+      <v-card-title class="bg-grey-darken-4 text-white py-2">
         <div class="d-flex align-center">
           <v-icon size="14" class="mr-2">mdi-virus</v-icon>
-          Viral Hemorrhagic Fever Screening
+          <span class="text-body-2 font-weight-medium">Viral Hemorrhagic Fever Screening</span>
           <v-spacer></v-spacer>
-          <v-chip size="small" color="white" variant="outlined" text-color="white">
+          <v-chip size="x-small" color="white" variant="outlined" text-color="white">
             {{ currentGuidelineLabel }}
           </v-chip>
         </div>
       </v-card-title>
 
-      <v-card-text class="pa-4">
-        <!-- GUIDELINE TOGGLER -->
-        <v-card variant="tonal" class="mb-4" color="grey-lighten-3">
-          <v-card-text class="pa-3">
-            <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-              <div class="text-subtitle-2 font-weight-medium">
-                <v-icon size="18" class="mr-1">mdi-file-document</v-icon>
-                Screening Guidelines
+      <v-card-text class="pa-3 flex-grow-1 d-flex flex-column" style="overflow: hidden;">
+        <!-- GUIDELINE TOGGLER - Compact -->
+        <v-card variant="tonal" class="mb-2" color="grey-lighten-3">
+          <v-card-text class="pa-2">
+            <div class="d-flex align-center justify-space-between">
+              <div class="text-caption font-weight-medium">
+                <v-icon size="14" class="mr-1">mdi-file-document</v-icon>
+                Guidelines
               </div>
               <v-btn-toggle v-model="guidelineType" mandatory divided density="compact" color="primary"
                 class="guideline-toggle">
-                <v-btn value="kenya" size="small">
-                  <v-icon start size="16">mdi-flag</v-icon>
-                  Kenya (BVD)
+                <v-btn value="kenya" size="x-small">
+                  <v-icon start size="12">mdi-flag</v-icon> Kenya
                 </v-btn>
-                <v-btn value="cdc" size="small">
-                  <v-icon start size="16">mdi-earth</v-icon>
-                  CDC
+                <v-btn value="cdc" size="x-small">
+                  <v-icon start size="12">mdi-earth</v-icon> CDC
                 </v-btn>
               </v-btn-toggle>
             </div>
           </v-card-text>
         </v-card>
 
-        <!-- STEPPER -->
-        <v-stepper v-model="step" :items="steps" show-actions class="mb-4" style="border: none">
+        <!-- STEPPER - Flexible height -->
+        <v-stepper v-model="step" :items="steps" show-actions class="flex-grow-1 d-flex flex-column"
+          style="border: none; min-height: 0;">
           <!-- STEP 1: Symptoms -->
           <template v-slot:item.1>
-            <div class="py-2">
-              <div class="text-subtitle-1 font-weight-bold mb-3">
-                <v-icon size="20" class="mr-2" color="primary">mdi-thermometer</v-icon>
+            <div class="py-1" style="overflow-y: auto; flex: 1;">
+              <div class="text-subtitle-2 font-weight-bold mb-1">
+                <v-icon size="16" class="mr-1" color="primary">mdi-thermometer</v-icon>
                 Symptoms Present Today
               </div>
-
-              <v-alert type="info" variant="tonal" density="compact" class="mb-3">
-                Select all symptoms the patient is currently experiencing
-                <span v-if="guidelineType === 'kenya'">
-                  (Kenya BVD Screening Checklist)
-                </span>
-                <span v-else> (CDC Ebola/Marburg Screening) </span>
+              <v-alert type="info" variant="tonal" density="compact" class="mb-2 py-1">
+                <span class="text-caption">Select all symptoms currently experiencing</span>
               </v-alert>
 
-              <!-- Kenya Symptoms -->
+              <!-- Symptom Chips - Compact -->
               <template v-if="guidelineType === 'kenya'">
-                <div class="d-flex flex-wrap ga-2 mb-4">
+                <div class="d-flex flex-wrap ga-1 mb-2">
                   <v-chip v-for="sym in kenyaSymptoms" :key="sym.key"
                     :color="patient.symptoms[sym.key] ? 'warning' : 'grey-lighten-1'"
-                    :variant="patient.symptoms[sym.key] ? 'flat' : 'outlined'" @click="toggleSymptom(sym.key)">
-                    <v-icon v-if="patient.symptoms[sym.key]" start size="14">
-                      mdi-check-circle
-                    </v-icon>
+                    :variant="patient.symptoms[sym.key] ? 'flat' : 'outlined'" @click="toggleSymptom(sym.key)"
+                    size="small" class="ma-0">
+                    <v-icon v-if="patient.symptoms[sym.key]" start size="10">mdi-check-circle</v-icon>
                     {{ sym.label }}
                   </v-chip>
                 </div>
               </template>
 
-              <!-- CDC Symptoms -->
               <template v-else>
-                <div class="d-flex flex-wrap ga-2 mb-4">
+                <div class="d-flex flex-wrap ga-1 mb-2">
                   <v-chip v-for="sym in cdcSymptoms" :key="sym.key"
                     :color="patient.symptoms[sym.key] ? 'warning' : 'grey-lighten-1'"
-                    :variant="patient.symptoms[sym.key] ? 'flat' : 'outlined'" @click="toggleSymptom(sym.key)">
-                    <v-icon v-if="patient.symptoms[sym.key]" start size="14">
-                      mdi-check-circle
-                    </v-icon>
+                    :variant="patient.symptoms[sym.key] ? 'flat' : 'outlined'" @click="toggleSymptom(sym.key)"
+                    size="x-small" class="ma-0">
+                    <v-icon v-if="patient.symptoms[sym.key]" start size="10">mdi-check-circle</v-icon>
                     {{ sym.label }}
                   </v-chip>
                 </div>
-                <div class="text-caption text-grey mt-1">
-                  <v-icon size="12">mdi-information</v-icon>
-                  CDC-compatible symptom list for Ebola/Marburg screening
-                </div>
               </template>
 
+              <!-- Temperature - Compact -->
               <v-text-field v-model="temperature" label="Temperature (°C)" type="number" density="compact"
-                variant="outlined" prepend-inner-icon="mdi-thermometer" step="0.1" min="35" max="42" />
-
-              <div class="text-caption text-grey mt-1">
-                <v-icon size="12">mdi-information</v-icon>
-                Normal range: 36.1°C - 37.2°C
+                variant="outlined" prepend-inner-icon="mdi-thermometer" step="0.1" min="35" max="42" hide-details
+                class="mt-1" />
+              <div class="text-caption text-grey mt-0 mb-1">
+                <v-icon size="10">mdi-information</v-icon> Normal: 36.1°C - 37.2°C
               </div>
             </div>
           </template>
 
           <!-- STEP 2: Risk Assessment -->
           <template v-slot:item.2>
-            <div class="py-2">
-              <div class="text-subtitle-1 font-weight-bold mb-3">
-                <v-icon size="20" class="mr-2" color="warning">mdi-shield-alert</v-icon>
+            <div class="py-1" style="overflow-y: auto; flex: 1;">
+              <div class="text-subtitle-2 font-weight-bold mb-1">
+                <v-icon size="16" class="mr-1" color="warning">mdi-shield-alert</v-icon>
                 Risk Assessment (Last 21 Days)
               </div>
-
-              <v-alert type="warning" variant="tonal" density="compact" class="mb-3">
-                <span v-if="guidelineType === 'kenya'">
-                  Kenya BVD risk screening questions
-                </span>
-                <span v-else>
-                  CDC Ebola/Marburg risk assessment framework
-                </span>
+              <v-alert type="warning" variant="tonal" density="compact" class="mb-2 py-1">
+                <span class="text-caption" v-if="guidelineType === 'kenya'">Kenya BVD risk screening</span>
+                <span class="text-caption" v-else>CDC Ebola/Marburg risk assessment</span>
               </v-alert>
 
-              <!-- Kenya Risk Questions -->
+              <!-- Risk Questions - Compact -->
               <template v-if="guidelineType === 'kenya'">
                 <div v-for="risk in kenyaRiskFields" :key="risk.key"
-                  class="d-flex align-center justify-space-between py-2 border-bottom">
-                  <div class="mr-4 text-body-2">
-                    <v-icon size="14" class="mr-1" :color="risks[risk.key] === true ? 'error' : 'grey'">
-                      mdi-alert-circle
-                    </v-icon>
+                  class="d-flex align-center justify-space-between py-1 border-bottom">
+                  <div class="mr-2 text-caption" style="flex: 1;">
+                    <v-icon size="12" class="mr-1"
+                      :color="risks[risk.key] === true ? 'error' : 'grey'">mdi-alert-circle</v-icon>
                     {{ risk.label }}
                   </div>
-
-                  <div class="d-flex" style="min-width: 120px">
-                    <v-btn size="small" class="rounded-s-pill"
+                  <div class="d-flex" style="min-width: 80px;">
+                    <v-btn size="x-small" class="rounded-s-pill"
                       :color="risks[risk.key] === true ? 'error' : 'grey-lighten-1'"
                       :variant="risks[risk.key] === true ? 'flat' : 'tonal'" @click="risks[risk.key] = true"
-                      :disabled="risks[risk.key] === true">
-                      Yes
-                    </v-btn>
-
-                    <v-btn size="small" class="rounded-e-pill"
+                      :disabled="risks[risk.key] === true">Yes</v-btn>
+                    <v-btn size="x-small" class="rounded-e-pill"
                       :color="risks[risk.key] === false ? 'success' : 'grey-lighten-1'"
                       :variant="risks[risk.key] === false ? 'flat' : 'tonal'" @click="risks[risk.key] = false"
-                      :disabled="risks[risk.key] === false">
-                      No
-                    </v-btn>
+                      :disabled="risks[risk.key] === false">No</v-btn>
                   </div>
                 </div>
-
-                <!-- Exposure Details for Kenya -->
-                <v-text-field v-model="exposureDetails" label="Exposure Details (if any YES above)" density="compact"
-                  variant="outlined" prepend-inner-icon="mdi-text-box" class="mt-3" />
+                <v-text-field v-model="exposureDetails" label="Exposure Details" density="compact" variant="outlined"
+                  prepend-inner-icon="mdi-text-box" class="mt-2" hide-details />
               </template>
 
-              <!-- CDC Risk Questions -->
               <template v-else>
-                <div class="text-subtitle-2 font-weight-medium mb-2">
-                  Initial Screening Questions
-                </div>
-
+                <div class="text-caption font-weight-medium mb-1">Initial Screening</div>
                 <div v-for="risk in cdcRiskFields" :key="risk.key"
-                  class="d-flex align-center justify-space-between py-2 border-bottom">
-                  <div class="mr-4 text-body-2">
-                    <v-icon size="14" class="mr-1" :color="risks[risk.key] === true ? 'error' : 'grey'">
-                      mdi-alert-circle
-                    </v-icon>
+                  class="d-flex align-center justify-space-between py-1 border-bottom">
+                  <div class="mr-2 text-caption" style="flex: 1;">
+                    <v-icon size="12" class="mr-1"
+                      :color="risks[risk.key] === true ? 'error' : 'grey'">mdi-alert-circle</v-icon>
                     {{ risk.label }}
                   </div>
-
-                  <div class="d-flex" style="min-width: 120px">
-                    <v-btn size="small" class="rounded-s-pill"
+                  <div class="d-flex" style="min-width: 80px;">
+                    <v-btn size="x-small" class="rounded-s-pill"
                       :color="risks[risk.key] === true ? 'error' : 'grey-lighten-1'"
                       :variant="risks[risk.key] === true ? 'flat' : 'tonal'" @click="risks[risk.key] = true"
-                      :disabled="risks[risk.key] === true">
-                      Yes
-                    </v-btn>
-
-                    <v-btn size="small" class="rounded-e-pill"
+                      :disabled="risks[risk.key] === true">Yes</v-btn>
+                    <v-btn size="x-small" class="rounded-e-pill"
                       :color="risks[risk.key] === false ? 'success' : 'grey-lighten-1'"
                       :variant="risks[risk.key] === false ? 'flat' : 'tonal'" @click="risks[risk.key] = false"
-                      :disabled="risks[risk.key] === false">
-                      No
-                    </v-btn>
+                      :disabled="risks[risk.key] === false">No</v-btn>
                   </div>
                 </div>
 
-                <v-divider class="my-3" />
-
-                <div class="text-subtitle-2 font-weight-medium mb-2">
-                  Additional Public Health Assessment
-                </div>
-
+                <v-divider class="my-2" />
+                <div class="text-caption font-weight-medium mb-1">Public Health Assessment</div>
                 <div v-for="risk in cdcAdditionalFields" :key="risk.key"
-                  class="d-flex align-center justify-space-between py-2 border-bottom">
-                  <div class="mr-4 text-body-2">
-                    <v-icon size="14" class="mr-1" :color="risks[risk.key] === true ? 'error' : 'grey'">
-                      mdi-hospital-building
-                    </v-icon>
+                  class="d-flex align-center justify-space-between py-1 border-bottom">
+                  <div class="mr-2 text-caption" style="flex: 1;">
+                    <v-icon size="12" class="mr-1"
+                      :color="risks[risk.key] === true ? 'error' : 'grey'">mdi-hospital-building</v-icon>
                     {{ risk.label }}
                   </div>
-
-                  <div class="d-flex" style="min-width: 120px">
-                    <v-btn size="small" class="rounded-s-pill"
-                      :color="risks[risk.key] === true ? 'error' : 'grey-lighten-2'"
+                  <div class="d-flex" style="min-width: 80px;">
+                    <v-btn size="x-small" class="rounded-s-pill"
+                      :color="risks[risk.key] === true ? 'error' : 'grey-lighten-1'"
                       :variant="risks[risk.key] === true ? 'flat' : 'tonal'" @click="risks[risk.key] = true"
-                      :disabled="risks[risk.key] === true">
-                      Yes
-                    </v-btn>
-
-                    <v-btn size="small" class="rounded-e-pill"
-                      :color="risks[risk.key] === false ? 'success' : 'grey-lighten-2'"
+                      :disabled="risks[risk.key] === true">Yes</v-btn>
+                    <v-btn size="x-small" class="rounded-e-pill"
+                      :color="risks[risk.key] === false ? 'success' : 'grey-lighten-1'"
                       :variant="risks[risk.key] === false ? 'flat' : 'tonal'" @click="risks[risk.key] = false"
-                      :disabled="risks[risk.key] === false">
-                      No
-                    </v-btn>
+                      :disabled="risks[risk.key] === false">No</v-btn>
                   </div>
                 </div>
 
-                <!-- Healthcare-specific questions (CDC) -->
+                <!-- Healthcare Worker Section -->
                 <v-expand-transition>
                   <div v-if="risks.healthcareWorker === true">
-                    <v-divider class="my-3" />
-                    <div class="text-subtitle-2 font-weight-medium mb-2">
-                      Healthcare Worker Assessment
-                    </div>
-
+                    <v-divider class="my-2" />
+                    <div class="text-caption font-weight-medium mb-1">Healthcare Worker Assessment</div>
                     <div v-for="risk in cdcHealthcareFields" :key="risk.key"
-                      class="d-flex align-center justify-space-between py-2 border-bottom">
-                      <div class="mr-4 text-body-2">
-                        <v-icon size="14" class="mr-1" :color="risks[risk.key] === true ? 'error' : 'grey'">
-                          mdi-stethoscope
-                        </v-icon>
+                      class="d-flex align-center justify-space-between py-1 border-bottom">
+                      <div class="mr-2 text-caption" style="flex: 1;">
+                        <v-icon size="12" class="mr-1"
+                          :color="risks[risk.key] === true ? 'error' : 'grey'">mdi-stethoscope</v-icon>
                         {{ risk.label }}
                       </div>
-
-                      <div class="d-flex" style="min-width: 120px">
-                        <v-btn size="small" class="rounded-s-pill"
-                          :color="risks[risk.key] === true ? 'error' : 'grey-lighten-2'"
+                      <div class="d-flex" style="min-width: 80px;">
+                        <v-btn size="x-small" class="rounded-s-pill"
+                          :color="risks[risk.key] === true ? 'error' : 'grey-lighten-1'"
                           :variant="risks[risk.key] === true ? 'flat' : 'tonal'" @click="risks[risk.key] = true"
-                          :disabled="risks[risk.key] === true">
-                          Yes
-                        </v-btn>
-
-                        <v-btn size="small" class="rounded-e-pill"
-                          :color="risks[risk.key] === false ? 'success' : 'grey-lighten-2'"
+                          :disabled="risks[risk.key] === true">Yes</v-btn>
+                        <v-btn size="x-small" class="rounded-e-pill"
+                          :color="risks[risk.key] === false ? 'success' : 'grey-lighten-1'"
                           :variant="risks[risk.key] === false ? 'flat' : 'tonal'" @click="risks[risk.key] = false"
-                          :disabled="risks[risk.key] === false">
-                          No
-                        </v-btn>
+                          :disabled="risks[risk.key] === false">No</v-btn>
                       </div>
                     </div>
                   </div>
@@ -249,8 +191,9 @@
               </template>
 
               <div class="d-flex ga-2 mt-2">
-                <v-btn size="small" color="warning" variant="tonal" prepend-icon="mdi-restore" @click="resetRiskFields">
-                  Reset Risk Fields
+                <v-btn size="x-small" color="warning" variant="tonal" prepend-icon="mdi-restore"
+                  @click="resetRiskFields">
+                  Reset Risks
                 </v-btn>
               </div>
             </div>
@@ -258,97 +201,76 @@
 
           <!-- STEP 3: Screening Decision -->
           <template v-slot:item.3>
-            <div class="py-2">
-              <div class="text-subtitle-1 font-weight-bold mb-3">
-                <v-icon size="20" class="mr-2" color="success">mdi-clipboard-check</v-icon>
+            <div class="py-1" style="overflow-y: auto; flex: 1;">
+              <div class="text-subtitle-2 font-weight-bold mb-1">
+                <v-icon size="16" class="mr-1" color="success">mdi-clipboard-check</v-icon>
                 Screening Decision
               </div>
 
               <v-expand-transition>
-                <div v-if="completionPercentage === 100">
-                  <!-- Screening Result -->
+                <div v-if="completionPercentage === 100" class="d-flex flex-column" style="gap: 8px;">
+                  <!-- Result Card -->
                   <v-card :color="screeningResult.positive ? 'error-lighten-5' : 'success-lighten-5'" variant="tonal"
-                    class="mb-4">
-                    <v-card-text>
-                      <div class="d-flex align-center">
-                        <v-icon :color="screeningResult.positive ? 'error' : 'success'" size="36" class="mr-3">
-                          {{ screeningResult.positive ? 'mdi-alert-octagon' :
-                            'mdi-check-circle' }}
-                        </v-icon>
-
-                        <div>
-                          <div class="text-h6 font-weight-bold">
-                            {{ screeningResult.label }}
-                          </div>
-                          <div class="text-body-2">
-                            {{ screeningResult.description }}
-                          </div>
-                          <div class="text-caption text-grey mt-1">
-                            Based on {{ currentGuidelineLabel }} guidelines
-                          </div>
+                    class="pa-2">
+                    <div class="d-flex align-center">
+                      <v-icon :color="screeningResult.positive ? 'error' : 'success'" size="28" class="mr-2">
+                        {{ screeningResult.positive ? 'mdi-alert-octagon' : 'mdi-check-circle' }}
+                      </v-icon>
+                      <div>
+                        <div class="text-subtitle-1 font-weight-bold" style="line-height: 1.2;">
+                          {{ screeningResult.label }}
                         </div>
+                        <div class="text-caption">{{ screeningResult.description }}</div>
+                        <div class="text-caption text-grey">Based on {{ currentGuidelineLabel }}</div>
                       </div>
-                    </v-card-text>
+                    </div>
                   </v-card>
 
-                  <!-- Positive Actions -->
+                  <!-- Actions -->
                   <v-expand-transition>
                     <div v-if="screeningResult.positive">
-                      <v-alert type="error" variant="tonal">
-                        <div class="font-weight-bold mb-2">
-                          <v-icon size="18" class="mr-1">mdi-alert</v-icon>
-                          Immediate Actions Required
+                      <v-alert type="error" variant="tonal" density="compact" class="py-1">
+                        <div class="font-weight-bold text-caption mb-1">
+                          <v-icon size="14" class="mr-1">mdi-alert</v-icon> Immediate Actions
                         </div>
-                        <ul>
-                          <li v-for="action in immediateActions" :key="action">
-                            {{ action }}
-                          </li>
+                        <ul class="text-caption" style="margin: 0; padding-left: 16px;">
+                          <li v-for="action in immediateActions" :key="action">{{ action }}</li>
                         </ul>
                       </v-alert>
                     </div>
                   </v-expand-transition>
 
-                  <!-- Risk Summary -->
-                  <v-card variant="outlined" class="mt-4">
-                    <v-card-text>
-                      <div class="text-caption font-weight-bold text-grey">
-                        {{ currentGuidelineLabel }} Risk Assessment Summary
-                      </div>
-                      <div class="d-flex flex-wrap ga-2 mt-1">
-                        <v-chip size="x-small" color="grey" variant="outlined">
-                          {{ totalRisksPresent }} risk factor{{
-                            totalRisksPresent !== 1 ? 's' : '' }} identified
-                        </v-chip>
-                        <v-chip size="x-small" color="grey" variant="outlined">
-                          {{ allRisksAnswered ? 'All risks assessed' :
-                            'Incomplete assessment' }}
-                        </v-chip>
-                      </div>
-                    </v-card-text>
+                  <!-- Summary -->
+                  <v-card variant="outlined" class="pa-2">
+                    <div class="text-caption font-weight-bold text-grey">{{ currentGuidelineLabel }} Summary</div>
+                    <div class="d-flex ga-1 mt-1">
+                      <v-chip size="x-small" color="grey" variant="outlined">
+                        {{ totalRisksPresent }} risk{{ totalRisksPresent !== 1 ? 's' : '' }}
+                      </v-chip>
+                      <v-chip size="x-small" color="grey" variant="outlined">
+                        {{ allRisksAnswered ? 'Complete' : 'Incomplete' }}
+                      </v-chip>
+                    </div>
                   </v-card>
                 </div>
 
-                <div v-else class="text-center py-8">
-                  <v-icon size="48" color="grey-lighten-2">mdi-clipboard-text-clock</v-icon>
-                  <div class="text-h6 mt-2 text-grey">Screening Incomplete</div>
-                  <div class="text-body-2 text-grey">
-                    Please complete all previous steps before viewing the
-                    screening decision
-                  </div>
-                  <div class="mt-2">
-                    <v-btn color="primary" @click="step = 1" variant="tonal">
-                      Go to Step 1
-                    </v-btn>
-                  </div>
+                <div v-else class="text-center py-4">
+                  <v-icon size="36" color="grey-lighten-2">mdi-clipboard-text-clock</v-icon>
+                  <div class="text-subtitle-1 mt-1 text-grey">Screening Incomplete</div>
+                  <div class="text-caption text-grey">Complete all steps to view decision</div>
+                  <v-btn color="primary" @click="step = 1" variant="tonal" size="small" class="mt-2">
+                    Go to Step 1
+                  </v-btn>
                 </div>
               </v-expand-transition>
             </div>
           </template>
         </v-stepper>
 
-        <!-- RESET -->
-        <v-btn block color="grey-darken-4" variant="tonal" prepend-icon="mdi-refresh" class="mt-2" @click="resetForm">
-          Reset Entire Screening
+        <!-- RESET BUTTON - Fixed at bottom -->
+        <v-btn block color="grey-darken-4" variant="tonal" prepend-icon="mdi-refresh" class="mt-2" size="small"
+          @click="resetForm">
+          Reset Screening
         </v-btn>
       </v-card-text>
     </v-card>
@@ -361,23 +283,19 @@ import { computed, reactive, ref, watch } from 'vue';
 type BinaryAnswer = boolean | null;
 
 interface Risks {
-  // Kenya BVD Risks
   travelledOutbreak: BinaryAnswer;
   contactSick: BinaryAnswer;
   highRiskOccupation: BinaryAnswer;
   healthcareWorkerIll: BinaryAnswer;
-  // CDC Initial Screening
   outbreakArea: BinaryAnswer;
   contactSickCDC: BinaryAnswer;
   contactBodyFluids: BinaryAnswer;
   visitClinic: BinaryAnswer;
   touchDeadBody: BinaryAnswer;
-  // CDC Additional
   providedCare: BinaryAnswer;
   residedWithSick: BinaryAnswer;
   funeralAttendance: BinaryAnswer;
   healthcareWorker: BinaryAnswer;
-  // Healthcare-specific
   usedPPE: BinaryAnswer;
   physicalContact: BinaryAnswer;
   contaminatedEnvironment: BinaryAnswer;
@@ -394,11 +312,7 @@ const temperature = ref('');
 const exposureDetails = ref('');
 const hasSubmitted = ref(false);
 
-const steps = [
-  'Symptoms',
-  'Risk Assessment',
-  'Screening Decision'
-];
+const steps = ['Symptoms', 'Risk Assessment', 'Screening Decision'];
 
 const currentGuidelineLabel = computed(() =>
   guidelineType.value === 'kenya' ? 'Kenya BVD' : 'CDC'
@@ -406,7 +320,6 @@ const currentGuidelineLabel = computed(() =>
 
 const patient = reactive<Patient>({
   symptoms: {
-    // Kenya symptoms
     fever: false,
     vomiting: false,
     diarrhea: false,
@@ -416,19 +329,16 @@ const patient = reactive<Patient>({
     lethargy: false,
     soreThroat: false,
     bleeding: false,
-    // CDC additional symptoms
     cough: false,
     difficultyBreathing: false,
   },
 });
 
 const risks = reactive<Risks>({
-  // Kenya
   travelledOutbreak: null,
   contactSick: null,
   highRiskOccupation: null,
   healthcareWorkerIll: null,
-  // CDC
   outbreakArea: null,
   contactSickCDC: null,
   contactBodyFluids: null,
@@ -444,7 +354,6 @@ const risks = reactive<Risks>({
   unprotectedExposure: null,
 });
 
-// Kenya BVD Symptoms (from the PDF)
 const kenyaSymptoms = [
   { key: 'fever', label: 'Fever / Body Hotness' },
   { key: 'vomiting', label: 'Vomiting' },
@@ -457,7 +366,6 @@ const kenyaSymptoms = [
   { key: 'bleeding', label: 'Unexplained Bleeding' },
 ];
 
-// CDC Symptoms (from the CDC document)
 const cdcSymptoms = [
   { key: 'fever', label: 'Fever' },
   { key: 'vomiting', label: 'Vomiting' },
@@ -472,7 +380,6 @@ const cdcSymptoms = [
   { key: 'difficultyBreathing', label: 'Difficulty Breathing' },
 ];
 
-// Kenya BVD Risk Fields (from the PDF)
 const kenyaRiskFields = [
   { key: 'travelledOutbreak', label: 'Travelled from/transited DRC, Uganda, or another country reporting Ebola cases?' },
   { key: 'contactSick', label: 'Had contact with a person who had/died after similar symptoms or unexplained bleeding?' },
@@ -480,7 +387,6 @@ const kenyaRiskFields = [
   { key: 'healthcareWorkerIll', label: 'If healthcare worker: became ill after managing a patient with similar symptoms?' },
 ];
 
-// CDC Risk Fields (from the CDC document)
 const cdcRiskFields = [
   { key: 'outbreakArea', label: 'Were you in the area where the outbreak is occurring?' },
   { key: 'contactSickCDC', label: 'Contact with or around a person sick with Ebola/Marburg, or compatible illness?' },
@@ -555,18 +461,15 @@ const allRisksAnswered = computed(() => {
 });
 
 const completionPercentage = computed(() => {
-  let total = 3; // Symptoms, Temperature, Risks
+  let total = 3;
   let completed = 0;
-
   if (activeSymptomsCount.value > 0) completed++;
   if (temperature.value && temperature.value.trim() !== '') completed++;
   if (allRisksAnswered.value) completed++;
-
   return Math.round((completed / total) * 100);
 });
 
 const isPositive = computed(() => {
-  // Criteria: Symptoms + Risk History Present
   return hasAnySymptom.value && hasAnyRisk.value;
 });
 
@@ -578,7 +481,6 @@ const screeningResult = computed(() => {
       description: 'Patient meets criteria for BVD alert - Symptoms + Risk History Present',
     };
   }
-
   if (hasAnySymptom.value && !hasAnyRisk.value) {
     return {
       positive: false,
@@ -586,7 +488,6 @@ const screeningResult = computed(() => {
       description: 'Symptoms present but no risk history - Continue monitoring',
     };
   }
-
   return {
     positive: false,
     label: 'SCREEN NEGATIVE',
@@ -606,19 +507,15 @@ const resetForm = () => {
   temperature.value = '';
   exposureDetails.value = '';
   step.value = 1;
-
   Object.keys(patient.symptoms).forEach(key => {
     patient.symptoms[key as keyof Patient['symptoms']] = false;
   });
-
   Object.keys(risks).forEach(key => {
     risks[key as keyof Risks] = null;
   });
-
   hasSubmitted.value = false;
 };
 
-// Watch for completion and auto-navigate to step 3
 watch(
   [() => activeSymptomsCount.value, temperature, () => allRisksAnswered.value],
   ([symptoms, temp, risksAnswered]) => {
@@ -629,7 +526,6 @@ watch(
   { deep: true }
 );
 
-// Reset risk assessment when guideline changes
 watch(guidelineType, () => {
   resetRiskFields();
   step.value = 1;
@@ -642,7 +538,8 @@ watch(guidelineType, () => {
 }
 
 ul {
-  padding-left: 20px;
+  padding-left: 16px;
+  margin: 0;
 }
 
 .border-bottom {
@@ -655,19 +552,56 @@ ul {
 
 :deep(.v-stepper) {
   box-shadow: none;
+  background: transparent;
 }
 
 :deep(.v-stepper-header) {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  padding: 4px 8px;
 }
 
 :deep(.v-stepper-actions) {
-  padding-top: 16px;
-  padding-bottom: 0;
+  padding: 4px 0;
+}
+
+:deep(.v-stepper-item) {
+  padding: 4px 0;
+}
+
+:deep(.v-stepper-item .v-avatar) {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+:deep(.v-stepper-item .v-stepper-item__title) {
+  font-size: 10px;
 }
 
 .guideline-toggle :deep(.v-btn) {
   text-transform: none;
   font-weight: 500;
+  font-size: 10px;
+}
+
+:deep(.v-card-text) {
+  padding: 8px;
+}
+
+:deep(.v-alert) {
+  font-size: 11px;
+}
+
+:deep(.v-chip) {
+  font-size: 10px;
+  height: 20px;
+}
+
+:deep(.v-text-field) {
+  font-size: 12px;
+}
+
+:deep(.v-text-field input) {
+  font-size: 12px;
 }
 </style>
